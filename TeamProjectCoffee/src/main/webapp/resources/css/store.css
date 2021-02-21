@@ -1,0 +1,70 @@
+@charset "UTF-8";
+
+/*
+main color : 9999cc
+
+*/
+
+.storemenu{
+	background-color: #f2f8fa;
+	font-size: 0.9em;
+}
+
+.container{
+	display:block;
+	justify-content: space-around;
+}
+
+section{
+
+}
+
+.row{
+	width: 80%;
+}
+
+/* Side Bar */
+.wrapper{
+	display:flex;
+	text-decoration: none;
+	transition: all 0.3s;
+}
+
+#sidebar {
+  min-width: 200px;
+  max-width: 200px;
+  /* background: lightgray; */
+  color: #fff;
+  transition: all 0.3s;
+  /* margin-top:10px; */
+}
+
+#sidebar li{
+ 	background: lightgray;
+	padding: 10px;
+ 	font-size: 0.8em;
+ 	display: block;
+}
+
+
+#sidebarCollapse{
+/* 	background: #9999cc; */
+	boarder: 0;
+	outline: 0;
+}
+
+
+
+#sidebar ul li:hover {
+  border: 1px solid gray;
+}
+
+#sidebar .activated{
+  background-color: white;
+}
+
+
+
+#sidebarCollapse{
+	background-color:gray;
+}

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.mapper.ProductMapper">
+	
+	<insert id="insertProduct">
+		<selectKey keyProperty="pcode" order="BEFORE" resultType="int">
+			select seq_product.nextval from dual
+		</selectKey>
+		insert into ProductTBL(pcode, pCategory, product, pContent, price,pAmount, pDate, origin)
+		values(#{pcode},#{pcategory},#{product},#{pcontent},#{price},#{pamount},#{pdate},#{origin})
+	</insert>
+	
+	<update id="updateProduct">
+		update ProductTBL set price=#{price}, pcontent=#{pcontent} where pcode=#{pcode}
+	</update>
+	
+	<delete id="deleteProduct">
+		delete from ProductTBL where pcode=#{pcode}
+	</delete>
+	
+	<select id="selectProduct" resultType="com.company.domain.ProductVO">
+		select * from ProductTBL where pcode=#{pcode}
+	</select>
+	
+	<!-- 전체조회 -->
+	<!-- ResultSet에 담긴 데이터를 객체에 로드 -->
+	<resultMap type="com.company.domain.ProductFileAttach" id="attachMap">
+		<result property="uuid" column="uuid" />
+		<result property="fileName" column="fileName" />
+	</resultMap>
+	
+	<resultMap type="com.company.domain.ProductVO" id="productMap">
+		<id property="pcode" column="pcode"/>
+		<result property="pcategory" column="pcategory"/>
+		<result property="product" column="product"/>
+		<result property="pcontent" column="pcontent"/>
+		<result property="pdate" column="pdate"/>
+		<result property="price" column="price"/>
+		<result property="pamount" column="pamount"/>
+		<result property="origin" column="origin"/>
+		<collection property="attach" resultMap="attachMap"/>
+	</resultMap>
+	<select id="listProduct" resultMap="productMap">	
+		<![CDATA[
+			select *	
+			from(select rn,p.pcode,pcategory,product,pcontent,price,pamount,pdate,origin,uuid,filename
+				 from (select /*+INDEX_DESC(PRODUCTTBL ProductTBL_PK)*/
+				  	   rownum rn, pcode, pcategory, product, pcontent, price, pamount,pdate,origin from PRODUCTTBL) p
+				  	   left outer join PRODUCTTBL_ATTACH attach
+					   on p.pcode = attach.pcode where
+					   
+			]]>	
+			
+			<choose>
+			<!-- cri.type == 'pcontent'.toString() -->
+			    <when test="type=='c'.toString()">
+			      pcontent like '%'||#{keyword}||'%' and			     
+			    </when>
+			    <when  test="type=='g'.toString()">
+			      pcategory = #{keyword} and
+			    </when>			   
+			 </choose>	
+			
+			<![CDATA[		   
+						rownum <= (#{pageNum}*#{amount}))
+			where rn > (#{pageNum}-1)*#{amount}	
+		]]>	
+	</select>
+	
+	<!-- 전체 게시물 수 -->
+ 	<select id="productCnt" resultType="int">
+ 	<![CDATA[
+		select count(*) from ProductTBL where 
+		
+		]]>	
+			
+			<choose>			
+			    <when test="type=='c'.toString()">
+			      pcontent like '%'||#{keyword}||'%' and			     
+			    </when>
+			    <when  test="type=='g'.toString()">
+			      pcategory = #{keyword} and
+			    </when>			   
+			 </choose>	
+			
+			<![CDATA[		
+		
+		 pcode > 0
+		 ]]>	
+	</select>
+	
+	
+	
+	
+<!-- 동적 SQL -->
+	<sql id="criteria">
+		<trim prefix="(" suffix=") AND" prefixOverrides="OR">
+			<foreach collection="typeArr" item="type">
+				<trim prefix="OR">
+					<choose>
+						<when test="type=='P'.toString()">
+							product like '%'||#{keyword}||'%'
+						</when>
+						<when test="type=='C'.toString()">
+							pcontent like '%'||#{keyword}||'%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+	</sql>
+
+
+</mapper>
+	
